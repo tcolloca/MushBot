@@ -15,6 +15,10 @@ public abstract class Action implements Comparable<Action>, ActionValues {
 		this.performer = performer;
 	}
 
+	public abstract void execute(MushGame game);
+
+	public abstract MessagePack getVisibleMessagePack();
+
 	public Player getPerformer() {
 		return performer;
 	}
@@ -23,7 +27,18 @@ public abstract class Action implements Comparable<Action>, ActionValues {
 		return type.getValue() - o.type.getValue();
 	}
 
-	public abstract void execute(MushGame game);
+	public final MessagePack getMessagePack() {
+		switch (type.getVisibility()) {
+		case VISIBLE:
+			return getVisibleMessagePack();
+		case HIDDEN:
+			return getHiddenMessagePack();
+		}
+		return null;
+	}
 
-	public abstract MessagePack getMessagePack();
+	public MessagePack getHiddenMessagePack() {
+		return null;
+	}
+
 }

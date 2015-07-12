@@ -25,8 +25,14 @@ public class MushKillAction extends Action {
 	}
 
 	@Override
-	public MessagePack getMessagePack() {
-		return new MessagePack(ACTION_MUSH_KILL, Lists.newArrayList(
+	public MessagePack getHiddenMessagePack() {
+		return new MessagePack(ACTION_MUSH_KILL_HIDDEN,
+				Lists.newArrayList(victim.getNick()));
+	}
+
+	@Override
+	public MessagePack getVisibleMessagePack() {
+		return new MessagePack(ACTION_MUSH_KILL_VISIBLE, Lists.newArrayList(
 				getPerformer().getNick(), victim.getNick()));
 	}
 }
