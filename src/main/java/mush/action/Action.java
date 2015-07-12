@@ -28,13 +28,7 @@ public abstract class Action implements Comparable<Action>, ActionValues {
 	}
 
 	public final MessagePack getMessagePack() {
-		switch (type.getVisibility()) {
-		case VISIBLE:
-			return getVisibleMessagePack();
-		case HIDDEN:
-			return getHiddenMessagePack();
-		}
-		return null;
+		return getVisibleMessagePack();
 	}
 
 	public MessagePack getHiddenMessagePack() {
