@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import mush.action.Action;
+import mush.action.MushKillAction;
 import mush.ai.AI;
 import mush.ai.Narrator;
 import mush.ai.VoteCounter;
@@ -24,15 +25,17 @@ public class MushGame implements MushValues, Runnable {
 
 	private Thread timeoutsThread;
 
-	private MushBot bot;
 	private Narrator narrator;
 	private MushGameStatus status;
 	private Map<User, Player> usersMap;
 	private Timeouts timeouts;
 	private Tripulation tripulation;
 	private AI ai;
+
 	private VoteCounter voteCounter;
+
 	private List<Action> roundActions;
+	private List<Player> standByDeaths;
 
 	static {
 		phases = new ArrayList<MushGameStatus>();
@@ -43,7 +46,6 @@ public class MushGame implements MushValues, Runnable {
 	}
 
 	public MushGame(MushBot bot) {
-		this.bot = bot;
 		narrator = new Narrator(bot);
 		usersMap = new HashMap<User, Player>();
 		tripulation = new Tripulation();
@@ -109,6 +111,16 @@ public class MushGame implements MushValues, Runnable {
 		}
 	}
 
+	public void killPlayer(Player player) {
+		standByDeaths.add(player);
+	}
+
+	private void commitDeaths() {
+		for (Player player : standByDeaths) {
+			tripulation.killPlayer(player);
+		}
+	}
+
 	public void run() {
 		while (!status.isEnded()) {
 			long initTime, currTime;
@@ -170,6 +182,10 @@ public class MushGame implements MushValues, Runnable {
 		return narrator;
 	}
 
+	public Player getPlayer(User user) {
+		return usersMap.get(user);
+	}
+
 	private void startPhase() {
 		status = phases.get(0);
 	}
@@ -181,6 +197,7 @@ public class MushGame implements MushValues, Runnable {
 		}
 		if (isFirstCyclePhase()) {
 			roundActions = new ArrayList<Action>();
+			standByDeaths = new ArrayList<Player>();
 		}
 		if (status.isVotingPhase()) {
 			initVoting();
@@ -208,7 +225,8 @@ public class MushGame implements MushValues, Runnable {
 		mostVotedUser = mostVotedUsers.get(0); // TODO
 		switch (status) {
 		case MUSH_ATTACK_PHASE:
-			// TODO: Add action
+			roundActions.add(new MushKillAction(tripulation.getRandomMush(),
+					getPlayer(mostVotedUser)));
 			narrator.announceVoteResult(mostVotedUser);
 			break;
 		default:

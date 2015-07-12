@@ -1,6 +1,7 @@
 package mush;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import mush.player.Player;
@@ -31,9 +32,16 @@ public class Tripulation {
 			}
 		}
 	}
-	
+
 	public void addPlayer(Player player) {
 		players.add(player);
+	}
+
+	public void killPlayer(Player player) {
+		players.remove(player);
+		if (player.isMush()) {
+			mushUsers.remove(player.getUser());
+		}
 	}
 
 	public int getPlayersAmount() {
@@ -47,12 +55,12 @@ public class Tripulation {
 	public List<User> getMushUsers() {
 		return mushUsers;
 	}
-	
+
 	public List<Player> getHumans() {
 		return CollectionFilter.filter(players, new Filter<Player>() {
 			public boolean evaluate(Player player) {
 				return !player.isMush();
-			}	
+			}
 		});
 	}
 
@@ -60,8 +68,14 @@ public class Tripulation {
 		return CollectionFilter.filter(players, new Filter<Player>() {
 			public boolean evaluate(Player player) {
 				return player.isMush();
-			}	
+			}
 		});
+	}
+
+	public Player getRandomMush() {
+		List<Player> mush = getMush();
+		Collections.shuffle(mush);
+		return mush.get(0);
 	}
 
 	public List<Player> getPlayers() {

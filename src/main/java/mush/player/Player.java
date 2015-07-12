@@ -38,6 +38,6 @@ public class Player {
 	}
 	
 	public String toString() {
-		return user.getNick();
+		return getNick();
 	}
 }
