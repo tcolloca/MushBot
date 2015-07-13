@@ -1,18 +1,19 @@
 package command;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.pircbotx.User;
 import org.pircbotx.hooks.types.GenericMessageEvent;
 
-import util.CommandNameManager;
 import util.MessagePack;
-import util.MessagesValues;
+import util.ResourceBundlesManager;
+import util.StringConverter;
 import bot.IrcBot;
 
 import com.google.common.collect.Lists;
-import command.help.HelpValues;
 
-public class LanguageCommand extends IrcBotCommand implements MessagesValues {
+public class LanguageCommand extends IrcBotCommand {
 
 	LanguageCommand(List<String> args) {
 		super(args);
@@ -23,9 +24,9 @@ public class LanguageCommand extends IrcBotCommand implements MessagesValues {
 	public void execute(IrcBot bot, GenericMessageEvent event) {
 		if (args.size() <= 1) {
 			bot.sendPrivateResourceMessage(event.getUser(), LANG_NO_LANG);
-		} else if (CommandNameManager.isCommand(CommandName.ALL, args.get(1))) {
-			bot.showAllLanguages(event.getUser());
-		} else if (!bot.hasLanguage(args.get(1))) {
+		} else if (CommandsManager.isCommand(CommandName.ALL, args.get(1))) {
+			showAllAvailableLanguages(bot, event.getUser());
+		} else if (!ResourceBundlesManager.hasLanguage(args.get(1))) {
 			bot.sendPrivateResourceMessage(event.getUser(), LANG_INVALID, args);
 		} else {
 			bot.changeLanguage(args.get(1));
@@ -37,12 +38,32 @@ public class LanguageCommand extends IrcBotCommand implements MessagesValues {
 	@Override
 	MessagePack getHelp(IrcBot bot, GenericMessageEvent event) {
 		if (args.size() == 1) {
-			return new MessagePack(HelpValues.HELP_LANG);
-		} else if (CommandNameManager.isCommand(CommandName.ALL, args.get(1))) {
-			return new MessagePack(HelpValues.HELP_LANG_ALL);
+			return new MessagePack(HELP_LANG);
+		} else if (CommandsManager.isCommand(CommandName.ALL, args.get(1))) {
+			return new MessagePack(HELP_LANG_ALL);
 		} else {
-			return new MessagePack(HelpValues.HELP_LANG_LANG,
-					Lists.newArrayList(args.get(1)));
+			return new MessagePack(HELP_LANG_LANG, Lists.newArrayList(args
+					.get(1)));
+		}
+	}
+
+	private void showAllAvailableLanguages(IrcBot bot, User user) {
+		String s;
+		List<String> availableLanguages = new ArrayList<String>(
+				ResourceBundlesManager.getAvailableLanguages());
+		if (availableLanguages.isEmpty()) {
+			bot.sendPrivateResourceMessage(user, LANG_NO_AVL_LANGS);
+		} else if (availableLanguages.size() == 1) {
+			bot.sendPrivateResourceMessage(user, LANG_ONE_AVL_LANG,
+					Lists.newArrayList("\"" + availableLanguages + "\""));
+		} else {
+			s = StringConverter.stringfyList(availableLanguages.subList(0,
+					availableLanguages.size() - 1), "\"");
+			String lastLanguage = "\""
+					+ availableLanguages.get(availableLanguages.size() - 1)
+					+ "\"";
+			bot.sendPrivateResourceMessage(user, LANG_AVL_LANGS,
+					Lists.newArrayList(s, lastLanguage));
 		}
 	}
 }

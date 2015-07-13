@@ -13,14 +13,16 @@ import mush.ai.AI;
 import mush.ai.Narrator;
 import mush.ai.VoteCounter;
 import mush.player.Player;
+import mush.properties.GameProperties;
 
 import org.pircbotx.User;
 
 import util.MessagePack;
-import util.Timeouts;
 import bot.MushBot;
 
 public class MushGame implements MushValues, Runnable {
+
+	public static final String MUSH_CHANNEL_PREFIX = "mush_channel_";
 
 	private static List<MushGameStatus> phases;
 
@@ -28,9 +30,10 @@ public class MushGame implements MushValues, Runnable {
 
 	private MushBot bot;
 	private Narrator narrator;
+	private GameProperties gameProperties;
+
 	private MushGameStatus status;
 	private Map<User, Player> usersMap;
-	private Timeouts timeouts;
 	private Tripulation tripulation;
 	private AI ai;
 
@@ -48,14 +51,15 @@ public class MushGame implements MushValues, Runnable {
 		phases.add(MushGameStatus.ENDED);
 	}
 
-	public MushGame(MushBot bot, Narrator narrator) {
+	public MushGame(MushBot bot, Narrator narrator,
+			GameProperties gameProperties) {
 		this.bot = bot;
 		this.narrator = narrator;
+		this.gameProperties = gameProperties;
 		usersMap = new HashMap<User, Player>();
 		tripulation = new Tripulation();
-		timeouts = new Timeouts();
 		timeoutsThread = new Thread(this);
-		ai = new AI();
+		ai = new AI(gameProperties);
 		newGame();
 	}
 
@@ -82,7 +86,7 @@ public class MushGame implements MushValues, Runnable {
 			startMushAttack();
 		} else {
 			narrator.announceRequiredPlayers(ai.getRequiredPlayers(),
-					GameProperties.minMushAmount());
+					gameProperties.getMinMushAmount());
 		}
 	}
 
@@ -97,7 +101,7 @@ public class MushGame implements MushValues, Runnable {
 	public void vote(User user, String string) {
 		User voted;
 		boolean hasVoted = voteCounter.hasVoted(user);
-		if (hasVoted && !GameProperties.isRevotingAllowed()) {
+		if (hasVoted && !gameProperties.isRevotingAllowed()) {
 			narrator.announceAlreadyVoted(user);
 		} else {
 			if (hasVoted) {
@@ -131,7 +135,7 @@ public class MushGame implements MushValues, Runnable {
 				initTime = System.currentTimeMillis();
 				do {
 					currTime = System.currentTimeMillis();
-				} while (currTime - initTime < timeouts
+				} while (currTime - initTime < gameProperties
 						.getJoiningPhaseTimeout() * 1000
 						&& status.isJoiningPhase());
 				if (status.isJoiningPhase()) {
@@ -142,7 +146,7 @@ public class MushGame implements MushValues, Runnable {
 				initTime = System.currentTimeMillis();
 				do {
 					currTime = System.currentTimeMillis();
-				} while (currTime - initTime < timeouts
+				} while (currTime - initTime < gameProperties
 						.getMushAttackPhaseTimeout() * 1000
 						&& status.isMushAttackPhase());
 				if (status.isMushAttackPhase()) {
@@ -201,7 +205,7 @@ public class MushGame implements MushValues, Runnable {
 	}
 
 	private String getMushChannelName() {
-		return "#" + GameProperties.mushChannelPrefix()
+		return "#" + MUSH_CHANNEL_PREFIX
 				+ String.valueOf(System.currentTimeMillis());
 	}
 

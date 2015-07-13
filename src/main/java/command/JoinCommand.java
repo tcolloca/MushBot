@@ -5,13 +5,10 @@ import java.util.List;
 import org.pircbotx.hooks.types.GenericMessageEvent;
 
 import util.MessagePack;
-import util.MessagesValues;
 import bot.IrcBot;
 import bot.MushBot;
 
-import command.help.HelpValues;
-
-public class JoinCommand extends IrcBotCommand implements MessagesValues {
+public class JoinCommand extends IrcBotCommand {
 
 	JoinCommand(List<String> args) {
 		super(args);
@@ -26,6 +23,6 @@ public class JoinCommand extends IrcBotCommand implements MessagesValues {
 	@SuppressWarnings("rawtypes")
 	@Override
 	MessagePack getHelp(IrcBot bot, GenericMessageEvent event) {
-		return new MessagePack(HelpValues.HELP_JOIN);
+		return new MessagePack(HELP_JOIN);
 	}
 }

@@ -7,7 +7,7 @@ import org.pircbotx.hooks.types.GenericMessageEvent;
 import util.MessagePack;
 import bot.IrcBot;
 
-public abstract class IrcBotCommand {
+public abstract class IrcBotCommand implements CommandValues, HelpValues {
 
 	protected List<String> args;
 

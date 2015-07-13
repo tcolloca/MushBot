@@ -26,14 +26,10 @@ public interface IrcBot {
 
 	public void sendPrivateResourceMessage(User user, String key,
 			List<String> args);
-
+	
 	public void changeLanguage(String lang);
 
-	public boolean hasLanguage(String lang);
-
-	public void showAllLanguages(User user);
-
-	public String getAvailableCommandsString();
+	public List<String> getAvailableCommands();
 
 	public void joinChannel(String channel);
 

@@ -1,71 +1,68 @@
 package util;
 
-import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.util.MissingResourceException;
-import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.Set;
 
-public class MessagesManager implements MessagesValues, DefaultValues {
+import properties.DefaultProperties;
 
+public class MessagesManager {
+
+	static final String MESSAGE_MISSING = "message_missing";
+	private static final String DASH = " - ";
+
+	private ResourceBundle resourceBundle;
 	private String lang;
-	private ResourceBundle resources;
 
 	public MessagesManager() {
-		Properties props = new Properties();
-		InputStream input;
-		try {
-			input = ClassLoader.getSystemResourceAsStream(DEFAULT_PROPERTIES);
-			props.load(input);
-			changeLanguage(props.getProperty(DEFAULT_LANG));
-		} catch (Exception e) {
-			e.printStackTrace();
+		this(DefaultProperties.DEFAULT_LANG);
+	}
+
+	public MessagesManager(String lang) {
+		if (ResourceBundlesManager.hasLanguage(lang)) {
+			resourceBundle = ResourceBundlesManager.getResourceBundle(lang);
+			this.lang = lang;
+		} else {
+			resourceBundle = ResourceBundlesManager
+					.getResourceBundle(DefaultProperties.DEFAULT_LANG);
+			this.lang = DefaultProperties.DEFAULT_LANG;
 		}
+
 	}
 
 	public String get(String key) {
 		try {
-			return resources.getString(key);
+			return resourceBundle.getString(key);
 		} catch (MissingResourceException e) {
-			System.out.print(key + " - ");
-			return resources.getString(MESSAGE_MISSING);
+			System.out.print(key + DASH);
+			return resourceBundle.getString(MESSAGE_MISSING);
 		}
 	}
 
 	public String get(String key, Object[] args) {
 		try {
-			return MessageFormat.format(resources.getString(key), args);
+			return MessageFormat.format(resourceBundle.getString(key), args);
 		} catch (MissingResourceException e) {
-			System.out.print(key + " - ");
-			return resources.getString(MESSAGE_MISSING);
+			System.out.print(key + DASH);
+			return resourceBundle.getString(MESSAGE_MISSING);
 		}
-	}
-
-	public boolean hasLanguage(String lang) {
-		return ClassLoader.getSystemResource(BUNDLE_PATH + UNDERSCORE + lang
-				+ PROPERTIES) != null;
 	}
 
 	public void changeLanguage(String lang) {
+		resourceBundle = ResourceBundlesManager.getResourceBundle(lang);
 		this.lang = lang;
-		resources = ResourceBundle.getBundle(BUNDLE_NAME, new Locale(lang));
 	}
 
-	public List<String> getAvailableLanguages() {
-		String[] langs = Locale.getISOLanguages();
-		List<String> availableLanguages = new ArrayList<String>(); 
-		for (String lang : langs) {
-			if (hasLanguage(lang)) {
-				availableLanguages.add(lang);
-			}
-		}
-		return availableLanguages;
+	public boolean hasLanguage(String lang) {
+		return ResourceBundlesManager.hasLanguage(lang);
 	}
 
-	public String getCurrentLanguage() {
+	public Set<String> getAvailableLanguages() {
+		return ResourceBundlesManager.getAvailableLanguages();
+	}
+
+	public String getLanguage() {
 		return lang;
 	}
 }

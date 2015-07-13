@@ -5,12 +5,11 @@ import java.util.List;
 import org.pircbotx.hooks.types.GenericMessageEvent;
 
 import util.MessagePack;
-import util.MessagesValues;
 import bot.IrcBot;
 
 import com.google.common.collect.Lists;
 
-public class ErrorCommand extends IrcBotCommand implements MessagesValues {
+public class ErrorCommand extends IrcBotCommand {
 
 	ErrorCommand(List<String> args, String command) {
 		super(args);

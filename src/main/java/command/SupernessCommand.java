@@ -5,12 +5,9 @@ import java.util.List;
 import org.pircbotx.hooks.types.GenericMessageEvent;
 
 import util.MessagePack;
-import util.MessagesValues;
 import bot.IrcBot;
 
-import command.help.HelpValues;
-
-public class SupernessCommand extends IrcBotCommand implements MessagesValues {
+public class SupernessCommand extends IrcBotCommand {
 
 	SupernessCommand(List<String> args) {
 		super(args);
@@ -19,12 +16,12 @@ public class SupernessCommand extends IrcBotCommand implements MessagesValues {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void execute(IrcBot bot, GenericMessageEvent event) {
-		bot.sendResourceMessage(SUPERNESS_MESSAGE);
+		bot.sendResourceMessage(SUPERNESS);
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Override
 	MessagePack getHelp(IrcBot bot, GenericMessageEvent event) {
-		return new MessagePack(HelpValues.HELP_SUPERNESS);
+		return new MessagePack(HELP_SUPERNESS);
 	}
 }

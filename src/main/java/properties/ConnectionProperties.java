@@ -3,8 +3,6 @@ package properties;
 import java.io.InputStream;
 import java.util.Properties;
 
-import bot.ConnectionValues;
-
 public class ConnectionProperties implements ConnectionValues {
 
 	private static Properties PROPERTIES = new Properties();

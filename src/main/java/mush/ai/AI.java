@@ -3,10 +3,16 @@ package mush.ai;
 import java.util.Collections;
 import java.util.List;
 
-import mush.GameProperties;
 import mush.player.Player;
+import mush.properties.GameProperties;
 
 public class AI {
+
+	GameProperties gameProperties;
+	
+	public AI(GameProperties gameProperties) {
+		this.gameProperties = gameProperties;
+	}
 
 	public void startGame(List<Player> players) {
 		int mushAmount = calculateMush(players.size());
@@ -26,11 +32,11 @@ public class AI {
 	}
 
 	public int getRequiredPlayers() {
-		return (int) Math.round(GameProperties.minMushAmount()
-				/ GameProperties.mushProportion());
+		return (int) Math.round(gameProperties.getMinMushAmount()
+				/ gameProperties.getMushProportion());
 	}
 
 	private int calculateMush(int size) {
-		return (int) Math.round(size * GameProperties.mushProportion());
+		return (int) Math.round(size * gameProperties.getMushProportion());
 	}
 }

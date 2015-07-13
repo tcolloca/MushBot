@@ -2,10 +2,10 @@ package bot;
 
 import java.util.List;
 
-import mush.GameProperties;
 import mush.MushGame;
 import mush.ai.ChannelHandler;
 import mush.ai.Narrator;
+import mush.properties.GameProperties;
 
 import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
@@ -17,24 +17,28 @@ import org.pircbotx.hooks.types.GenericMessageEvent;
 
 import parser.CommandParser;
 import properties.ConnectionProperties;
-import util.CommandNameManager;
 import util.MessagesManager;
-import util.MessagesValues;
-import util.StringConverter;
 
-import com.google.common.collect.Lists;
+import command.CommandsManager;
 import command.IrcBotCommand;
 
 @SuppressWarnings("rawtypes")
-public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
+public class MushBot extends ListenerAdapter implements IrcBot {
+
+	private static final String JOIN_COMMAND_PART = "IN";
+	private static final String UNKNOWN_COMMAND = "Unknown command";
+	private static final String NEW_LINE = "\r\n";
 
 	private PircBotX bot;
 	private Channel mainChannel;
 	private Channel mushChannel;
+
 	private CommandParser parser;
 	private MessagesManager messagesManager;
+
 	private Narrator narrator;
 	private MushGame mushGame;
+	private GameProperties gameProperties;
 
 	public MushBot() {
 		parser = new CommandParser();
@@ -55,8 +59,7 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 			mainChannel = event.getChannel();
 			bot.sendIRC().identify(ConnectionProperties.password());
 		}
-		if (event.getChannel().getName()
-				.contains(GameProperties.mushChannelPrefix())) {
+		if (event.getChannel().getName().contains(MushGame.MUSH_CHANNEL_PREFIX)) {
 			mushChannel = event.getChannel();
 			ChannelHandler.prepareMushChannel(mushChannel);
 		}
@@ -64,9 +67,8 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 
 	@Override
 	public void onServerResponse(ServerResponseEvent event) throws Exception {
-		if ((event.getRawLine().contains("IN") || event.getRawLine().contains(
-				"OIN"))
-				&& event.getRawLine().contains("Unknown command")) {
+		if (event.getRawLine().contains(JOIN_COMMAND_PART)
+				&& event.getRawLine().contains(UNKNOWN_COMMAND)) {
 			bot.sendIRC().joinChannel(ConnectionProperties.channel());
 		}
 	}
@@ -89,7 +91,7 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 	}
 
 	public void sendMessage(Channel channel, String message) {
-		String[] lines = message.split("\r\n");
+		String[] lines = message.split(NEW_LINE);
 		for (String line : lines) {
 			channel.send().message(line);
 		}
@@ -113,13 +115,9 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 	}
 
 	public void sendPrivateMessage(User user, String message) {
-		try {
-			String[] lines = message.split("\r\n");
-			for (String line : lines) {
-				user.send().message(line);
-			}
-		} catch (Exception e) {
-			// TODO Do sth
+		String[] lines = message.split(NEW_LINE);
+		for (String line : lines) {
+			user.send().message(line);
 		}
 	}
 
@@ -136,34 +134,9 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 		messagesManager.changeLanguage(lang);
 	}
 
-	public boolean hasLanguage(String lang) {
-		return messagesManager.hasLanguage(lang);
-	}
-
-	public void showAllLanguages(User user) {
-		String s;
-		List<String> availableLanguages = messagesManager
-				.getAvailableLanguages();
-		if (availableLanguages.isEmpty()) {
-			sendPrivateResourceMessage(user, LANG_NO_AVL_LANGS);
-		} else if (availableLanguages.size() == 1) {
-			sendPrivateResourceMessage(user, LANG_ONE_AVL_LANG,
-					Lists.newArrayList("\"" + availableLanguages.get(0) + "\""));
-		} else {
-			s = StringConverter.stringfyList(availableLanguages.subList(0,
-					availableLanguages.size() - 1), "\"");
-			String lastLanguage = "\""
-					+ availableLanguages.get(availableLanguages.size() - 1)
-					+ "\"";
-			sendPrivateResourceMessage(user, LANG_AVL_LANGS,
-					Lists.newArrayList(s, lastLanguage));
-		}
-	}
-
-	public String getAvailableCommandsString() {
-		List<String> availableCommands = CommandNameManager
-				.getAvailableCommands(messagesManager.getCurrentLanguage());
-		return StringConverter.stringfyList(availableCommands, "\"");
+	public List<String> getAvailableCommands() {
+		return CommandsManager.getAvailableCommands(messagesManager
+				.getLanguage());
 	}
 
 	public void joinChannel(String channel) {
@@ -186,7 +159,7 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 		if (mushGame != null && mushGame.hasStarted()) {
 			narrator.announceGameAlreadyCreated(user);
 		} else {
-			mushGame = new MushGame(this, narrator);
+			mushGame = new MushGame(this, narrator, gameProperties);
 		}
 	}
 
