@@ -6,14 +6,18 @@ import org.pircbotx.Channel;
 import org.pircbotx.User;
 
 public interface IrcBot {
-	
+
 	public void setChannel(Channel channel);
-	
-	public void sendMessage(String message);
+
+	public void sendMessage(Channel channel, String message);
 
 	public void sendResourceMessage(String key);
 
-	public void sendResourceMessage(String key,
+	public void sendResourceMessage(Channel channel, String key);
+
+	public void sendResourceMessage(String key, List<String> args);
+
+	public void sendResourceMessage(Channel channel, String key,
 			List<String> args);
 
 	public void sendPrivateMessage(User user, String message);
@@ -28,6 +32,10 @@ public interface IrcBot {
 	public boolean hasLanguage(String lang);
 
 	public void showAllLanguages(User user);
-	
+
 	public String getAvailableCommandsString();
+
+	public void joinChannel(String channel);
+
+	public void silenceAll(Channel channel);
 }

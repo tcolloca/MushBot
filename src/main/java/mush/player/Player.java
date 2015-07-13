@@ -40,4 +40,8 @@ public class Player {
 	public String toString() {
 		return getNick();
 	}
+
+	public boolean isLeaderVoter() {
+		return role.isLeaderVoter();
+	}
 }

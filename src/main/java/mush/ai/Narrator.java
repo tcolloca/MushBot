@@ -3,6 +3,7 @@ package mush.ai;
 import mush.MushValues;
 import mush.Tripulation;
 
+import org.pircbotx.Channel;
 import org.pircbotx.User;
 
 import util.StringConverter;
@@ -111,7 +112,7 @@ public class Narrator implements MushValues {
 		bot.sendPrivateResourceMessage(user, MUSH_VOTE_VOTE, Lists.newArrayList(voted.getNick()));
 	}
 
-	public void announceVoteResult(User mostVotedUser) {
-		bot.sendResourceMessage(MUSH_VOTE_RESULT, Lists.newArrayList(mostVotedUser.getNick()));
+	public void announceVoteResult(Channel mushChannel, User mostVotedUser) {
+		bot.sendResourceMessage(mushChannel, MUSH_VOTE_RESULT, Lists.newArrayList(mostVotedUser.getNick()));
 	}
 }

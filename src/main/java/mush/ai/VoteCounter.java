@@ -21,6 +21,7 @@ public class VoteCounter {
 	SortedSet<Vote> votesPerUser;
 	private int totalVotes;
 	private int votesCount;
+	private Player leader;
 
 	public VoteCounter(List<Player> voters, List<Player> votees) {
 		this.voters = voters;
@@ -48,7 +49,7 @@ public class VoteCounter {
 			if (prefix.toLowerCase().startsWith(key)) {
 				User voted = prefixes.get(key);
 				addVotes(voted, i);
-				votersVotes.put(user, new Vote(user, i));
+				votersVotes.put(user, new Vote(voted, i));
 				return voted;
 			}
 		}
@@ -56,15 +57,12 @@ public class VoteCounter {
 	}
 
 	public void removeVote(User voter) {
-		Vote vote = votersVotes.get(voter);
+		Vote vote = getVote(voter);
 		addVotes(vote.voted, -vote.votes);
 	}
 
 	public boolean isConcluded() {
 		if (votesDifference() > remainingVotes()) {
-			return true;
-		}
-		if (everyoneHasVoted()) {
 			return true;
 		}
 		return false;
@@ -86,6 +84,51 @@ public class VoteCounter {
 			users.add(votesPerUser.first().voted);
 		}
 		return users;
+	}
+
+	public User getElected() {
+		if (votesDifference() == 0) {
+			return getVote(leader.getUser()).voted;
+		}
+		return votesPerUser.first().voted;
+	}
+
+	public boolean hasVotedMostVoted(Player voter) {
+		List<User> mostVotedUsers = mostVoted();
+		if (mostVotedUsers == null) {
+			return false;
+		}
+		return mostVotedUsers.contains(getVote(voter.getUser()).voted);
+	}
+
+	public boolean everyoneHasVoted() {
+		for (Player player : voters) {
+			if (!votersVotes.containsKey(player)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean hasLeaderVoter() {
+		for (Player player : voters) {
+			if (player.isLeaderVoter()) {
+				leader = player;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean leaderHasVotedMostVoted() {
+		if (leader == null) {
+			throw new IllegalStateException();
+		}
+		return hasVotedMostVoted(leader);
+	}
+
+	private Vote getVote(User voter) {
+		return votersVotes.get(voter);
 	}
 
 	private void initPrefixes(List<Player> players) {
@@ -125,7 +168,6 @@ public class VoteCounter {
 		votesCount += i;
 		Vote voteToModify = null;
 		for (Vote vote : votesPerUser) {
-			System.out.println(vote.voted.getNick());
 			if (vote.voted.getNick().equals(user.getNick())) {
 				voteToModify = vote;
 				break;
@@ -164,15 +206,6 @@ public class VoteCounter {
 
 	private int remainingVotes() {
 		return totalVotes - votesCount;
-	}
-
-	private boolean everyoneHasVoted() {
-		for (Player player : voters) {
-			if (!votersVotes.containsKey(player)) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	private class Vote implements Comparable<Vote> {

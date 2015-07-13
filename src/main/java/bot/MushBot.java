@@ -2,37 +2,45 @@ package bot;
 
 import java.util.List;
 
+import mush.GameProperties;
 import mush.MushGame;
+import mush.ai.ChannelHandler;
+import mush.ai.Narrator;
 
 import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.JoinEvent;
-import org.pircbotx.hooks.events.UnknownEvent;
+import org.pircbotx.hooks.events.ServerResponseEvent;
 import org.pircbotx.hooks.types.GenericMessageEvent;
 
 import parser.CommandParser;
+import properties.ConnectionProperties;
 import util.CommandNameManager;
 import util.MessagesManager;
 import util.MessagesValues;
 import util.StringConverter;
 
 import com.google.common.collect.Lists;
+
 import command.IrcBotCommand;
 
 @SuppressWarnings("rawtypes")
 public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 
 	private PircBotX bot;
-	private Channel channel;
+	private Channel mainChannel;
+	private Channel mushChannel;
 	private CommandParser parser;
 	private MessagesManager messagesManager;
+	private Narrator narrator;
 	private MushGame mushGame;
 
 	public MushBot() {
 		parser = new CommandParser();
 		messagesManager = new MessagesManager();
+		narrator = new Narrator(this);
 	}
 
 	public void setBot(PircBotX bot) {
@@ -40,19 +48,28 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 	}
 
 	public void setChannel(Channel channel) {
-		this.channel = channel;
+		this.mainChannel = channel;
 	}
 
 	public void onJoin(JoinEvent event) throws Exception {
-		if (channel == null) {
-			channel = event.getChannel();
+		if (mainChannel == null) {
+			mainChannel = event.getChannel();
+			bot.sendIRC().identify(ConnectionProperties.password());
+		}
+		if (event.getChannel().getName()
+				.contains(GameProperties.mushChannelPrefix())) {
+			mushChannel = event.getChannel();
+			ChannelHandler.prepareMushChannel(mushChannel);
 		}
 	}
 
 	@Override
-	public void onUnknown(UnknownEvent event) throws Exception {
-		// System.out.println("ENTERING");
-		bot.getInputParser().handleLine("irc.uk.mibbit.net 421 mushBot JOIN");
+	public void onServerResponse(ServerResponseEvent event) throws Exception {
+		if ((event.getRawLine().contains("IN") || event.getRawLine().contains(
+				"OIN"))
+				&& event.getRawLine().contains("Unknown command")) {
+			bot.sendIRC().joinChannel(ConnectionProperties.channel());
+		}
 	}
 
 	@Override
@@ -64,7 +81,7 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 		}
 	}
 
-	public void sendMessage(String message) {
+	public void sendMessage(Channel channel, String message) {
 		String[] lines = message.split("\r\n");
 		for (String line : lines) {
 			channel.send().message(line);
@@ -72,17 +89,29 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 	}
 
 	public void sendResourceMessage(String key) {
-		sendMessage(messagesManager.get(key));
+		sendResourceMessage(mainChannel, key);
+	}
+
+	public void sendResourceMessage(Channel channel, String key) {
+		sendMessage(channel, messagesManager.get(key));
 	}
 
 	public void sendResourceMessage(String key, List<String> args) {
-		sendMessage(messagesManager.get(key, args != null ? args.toArray()
-				: null));
+		sendResourceMessage(mainChannel, key, args);
+	}
+
+	public void sendResourceMessage(Channel channel, String key,
+			List<String> args) {
+		sendMessage(channel,
+				messagesManager.get(key, args != null ? args.toArray() : null));
 	}
 
 	public void sendPrivateMessage(User user, String message) {
 		try {
-			user.send().message(message);
+			String[] lines = message.split("\r\n");
+			for (String line : lines) {
+				user.send().message(line);
+			}
 		} catch (Exception e) {
 			// TODO Do sth
 		}
@@ -132,19 +161,35 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 		return StringConverter.stringfyList(availableCommands, "\"");
 	}
 
+	public void joinChannel(String channel) {
+		bot.sendIRC().joinChannel(channel);
+	}
+
+	public void silenceAll(Channel channel) {
+		ChannelHandler.silenceAll(channel);
+	}
+	
+	public void silenceMainChannel() {
+		ChannelHandler.silenceAll(mainChannel);
+	}
+	
+	public void silenceMushChannel() {
+		ChannelHandler.silenceAll(mushChannel);
+	}
+
 	public void createGame(User user) {
 		if (mushGame != null && mushGame.hasStarted()) {
-			mushGame.getNarrator().announceGameAlreadyCreated(user);
+			narrator.announceGameAlreadyCreated(user);
 		} else {
-			mushGame = new MushGame(this);
+			mushGame = new MushGame(this, narrator);
 		}
 	}
 
 	public void addPlayer(User user) {
 		if (mushGame == null || !mushGame.isInJoiningPhase()) {
-			mushGame.getNarrator().announceInvalidJoining(user);
+			narrator.announceInvalidJoining(user);
 		} else if (mushGame.isPlaying(user)) {
-			mushGame.getNarrator().annouceAlreadyJoined(user);
+			narrator.annouceAlreadyJoined(user);
 		} else {
 			mushGame.addPlayer(user);
 		}
@@ -152,9 +197,9 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 
 	public void startGame(User user) {
 		if (mushGame == null) {
-			mushGame.getNarrator().announceInvalidStart(user);
+			narrator.announceInvalidStart(user);
 		} else if (!mushGame.isInJoiningPhase()) {
-			mushGame.getNarrator().announceGameAlreadyStarted(user);
+			narrator.announceGameAlreadyStarted(user);
 		} else {
 			mushGame.startGame();
 		}
@@ -162,13 +207,32 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 
 	public void mushVote(User user, String string) {
 		if (mushGame == null || !mushGame.isPlaying(user)) {
-			mushGame.getNarrator().announceNotAllowedGameAction(user);
+			narrator.announceNotAllowedGameAction(user);
 		} else if (!mushGame.isMush(user)) {
-			mushGame.getNarrator().announceNotAllowedMushAction(user);
+			narrator.announceNotAllowedMushAction(user);
 		} else if (!mushGame.isInMushAttackPhase()) {
-			mushGame.getNarrator().announceNotMushAttackTime(user);
+			narrator.announceNotMushAttackTime(user);
 		} else {
 			mushGame.vote(user, string);
 		}
 	}
+
+	public void inviteToMushChannel(List<User> users) {
+		while (mushChannel == null) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+		}
+		ChannelHandler.inviteToChannel(mushChannel, users);
+	}
+
+	public void endGame() {
+		mushGame = null;
+	}
+
+	public void announceMushVoteResult(User electedUser) {
+		narrator.announceVoteResult(mushChannel, electedUser);
+	}
+
 }

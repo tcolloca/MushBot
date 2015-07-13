@@ -13,4 +13,11 @@ public abstract class ComplexRole implements Role {
 	public int getAvailableVotes() {
 		return role.getAvailableVotes();
 	}
+	
+	public boolean isLeaderVoter() {
+		if (isMush()) {
+			return false;
+		}
+		return role.isLeaderVoter();
+	}
 }

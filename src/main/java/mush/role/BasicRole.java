@@ -10,4 +10,8 @@ public class BasicRole implements Role {
 		return 1;
 	}
 
+	public boolean isLeaderVoter() {
+		return false;
+	}
+
 }
