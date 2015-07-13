@@ -10,10 +10,12 @@ import java.util.Set;
 import mush.action.Action;
 import mush.action.MushKillAction;
 import mush.ai.AI;
+import mush.ai.ChannelHandler;
 import mush.ai.Narrator;
 import mush.ai.VoteCounter;
 import mush.player.Player;
 
+import org.pircbotx.Channel;
 import org.pircbotx.User;
 
 import util.Timeouts;
@@ -25,6 +27,7 @@ public class MushGame implements MushValues, Runnable {
 
 	private Thread timeoutsThread;
 
+	private MushBot bot;
 	private Narrator narrator;
 	private MushGameStatus status;
 	private Map<User, Player> usersMap;
@@ -45,13 +48,14 @@ public class MushGame implements MushValues, Runnable {
 		phases.add(MushGameStatus.ENDED);
 	}
 
-	public MushGame(MushBot bot) {
-		narrator = new Narrator(bot);
+	public MushGame(MushBot bot, Narrator narrator) {
+		this.bot = bot;
+		this.narrator = narrator;
 		usersMap = new HashMap<User, Player>();
 		tripulation = new Tripulation();
 		timeouts = new Timeouts();
 		timeoutsThread = new Thread(this);
-		ai = new AI(bot);
+		ai = new AI();
 		newGame();
 	}
 
@@ -78,23 +82,22 @@ public class MushGame implements MushValues, Runnable {
 			startMushAttack();
 		} else {
 			narrator.announceRequiredPlayers(ai.getRequiredPlayers(),
-					ai.getMinMushAmount());
+					GameProperties.minMushAmount());
 		}
 	}
 
-	private void startMushAttack() {
-		nextPhase();
-		narrator.announceMushAttack(tripulation);
-	}
-
 	public void endMushAttack() {
-		concludeVoting();
+		if (isAnElectedUser()) {
+			concludeVoting();
+		} else {
+			endGame();
+		}
 	}
 
 	public void vote(User user, String string) {
 		User voted;
 		boolean hasVoted = voteCounter.hasVoted(user);
-		if (hasVoted && !ai.isAllowedRevoting()) {
+		if (hasVoted && !GameProperties.isRevotingAllowed()) {
 			narrator.announceAlreadyVoted(user);
 		} else {
 			if (hasVoted) {
@@ -106,7 +109,7 @@ public class MushGame implements MushValues, Runnable {
 				narrator.announceVote(user, voted);
 			}
 		}
-		if (voteCounter.isConcluded()) {
+		if (isAnElectedUser()) {
 			concludeVoting();
 		}
 	}
@@ -115,10 +118,9 @@ public class MushGame implements MushValues, Runnable {
 		standByDeaths.add(player);
 	}
 
-	private void commitDeaths() {
-		for (Player player : standByDeaths) {
-			tripulation.killPlayer(player);
-		}
+	public void endGame() {
+		status = MushGameStatus.ENDED;
+		bot.endGame();
 	}
 
 	public void run() {
@@ -186,6 +188,23 @@ public class MushGame implements MushValues, Runnable {
 		return usersMap.get(user);
 	}
 
+	private void startMushAttack() {
+		bot.silenceMainChannel();
+		nextPhase();
+		narrator.announceMushAttack(tripulation);
+		joinMushChannel();
+		bot.inviteToMushChannel(tripulation.getMushUsers());
+	}
+
+	private void joinMushChannel() {
+		bot.joinChannel(getMushChannelName());
+	}
+
+	private String getMushChannelName() {
+		return "#" + GameProperties.mushChannelPrefix()
+				+ String.valueOf(System.currentTimeMillis());
+	}
+
 	private void startPhase() {
 		status = phases.get(0);
 	}
@@ -201,6 +220,9 @@ public class MushGame implements MushValues, Runnable {
 		}
 		if (status.isVotingPhase()) {
 			initVoting();
+		}
+		if (status.isEnded()) {
+			endGame();
 		}
 	}
 
@@ -220,18 +242,29 @@ public class MushGame implements MushValues, Runnable {
 	}
 
 	private void concludeVoting() {
-		List<User> mostVotedUsers = voteCounter.mostVoted();
-		User mostVotedUser;
-		mostVotedUser = mostVotedUsers.get(0); // TODO
+		User electedUser = voteCounter.getElected();
 		switch (status) {
 		case MUSH_ATTACK_PHASE:
 			roundActions.add(new MushKillAction(tripulation.getRandomMush(),
-					getPlayer(mostVotedUser)));
-			narrator.announceVoteResult(mostVotedUser);
+					getPlayer(electedUser)));
+			bot.announceMushVoteResult(electedUser);
 			break;
 		default:
 			break;
 		}
 		nextPhase();
+	}
+
+	private boolean isAnElectedUser() {
+		return voteCounter.isConcluded()
+				|| (voteCounter.everyoneHasVoted()
+						&& voteCounter.hasLeaderVoter() && voteCounter
+							.leaderHasVotedMostVoted());
+	}
+
+	private void commitDeaths() {
+		for (Player player : standByDeaths) {
+			tripulation.killPlayer(player);
+		}
 	}
 }

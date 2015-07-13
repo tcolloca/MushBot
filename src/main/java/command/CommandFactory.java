@@ -9,8 +9,6 @@ public class CommandFactory {
 	public static IrcBotCommand build(String command, List<String> args) {
 		if (CommandNameManager.isCommand(CommandName.HELP, command)) {
 			return new HelpCommand(args);
-		} else if (CommandNameManager.isCommand(CommandName.HELLO, command)) {
-			return new HelloCommand(args);
 		} else if (CommandNameManager.isCommand(CommandName.SUPERNESS, command)) {
 			return new SupernessCommand(args);
 		} else if (CommandNameManager.isCommand(CommandName.LANG, command)) {
