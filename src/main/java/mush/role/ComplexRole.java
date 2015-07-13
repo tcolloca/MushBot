@@ -8,7 +8,9 @@ public abstract class ComplexRole implements Role {
 		this.role = role;
 	}
 
-	public abstract boolean isMush();
+	public boolean isMush() {
+		return role.isMush();
+	}
 	
 	public int getAvailableVotes() {
 		return role.getAvailableVotes();

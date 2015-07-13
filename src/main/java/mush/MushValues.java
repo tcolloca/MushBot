@@ -33,4 +33,7 @@ public interface MushValues {
 	public static final String MUSH_VOTE_UNKNOWN = "mush_vote_unknown";
 	public static final String MUSH_VOTE_VOTE = "mush_vote_vote";
 	public static final String MUSH_VOTE_RESULT = "mush_vote_result";
+	
+	public static final String MUSH_PLAYER_DEAD = "mush_player_dead";
+	public static final String MUSH_PLAYER_ROLE = "mush_player_role";
 }

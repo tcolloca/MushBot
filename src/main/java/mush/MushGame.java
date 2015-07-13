@@ -10,14 +10,13 @@ import java.util.Set;
 import mush.action.Action;
 import mush.action.MushKillAction;
 import mush.ai.AI;
-import mush.ai.ChannelHandler;
 import mush.ai.Narrator;
 import mush.ai.VoteCounter;
 import mush.player.Player;
 
-import org.pircbotx.Channel;
 import org.pircbotx.User;
 
+import util.MessagePack;
 import util.Timeouts;
 import bot.MushBot;
 
@@ -45,6 +44,7 @@ public class MushGame implements MushValues, Runnable {
 		phases.add(MushGameStatus.JOINING_PHASE);
 		phases.add(MushGameStatus.STARTING_PHASE);
 		phases.add(MushGameStatus.MUSH_ATTACK_PHASE);
+		phases.add(MushGameStatus.ACTIONS_PHASE);
 		phases.add(MushGameStatus.ENDED);
 	}
 
@@ -87,7 +87,7 @@ public class MushGame implements MushValues, Runnable {
 	}
 
 	public void endMushAttack() {
-		if (isAnElectedUser()) {
+		if (!voteCounter.isVotationEven()) {
 			concludeVoting();
 		} else {
 			endGame();
@@ -221,6 +221,9 @@ public class MushGame implements MushValues, Runnable {
 		if (status.isVotingPhase()) {
 			initVoting();
 		}
+		if (status.isActionsPhase()) {
+			executeActions();
+		}
 		if (status.isEnded()) {
 			endGame();
 		}
@@ -262,9 +265,20 @@ public class MushGame implements MushValues, Runnable {
 							.leaderHasVotedMostVoted());
 	}
 
+	private void executeActions() {
+		for (Action action : roundActions) {
+			action.execute(this);
+			MessagePack pack = action.getVisibleMessagePack();
+			narrator.announceAction(pack.getKey(), pack.getArgs());
+		}
+		commitDeaths();
+		nextPhase();
+	}
+
 	private void commitDeaths() {
 		for (Player player : standByDeaths) {
 			tripulation.killPlayer(player);
+			narrator.announceDeath(player);
 		}
 	}
 }

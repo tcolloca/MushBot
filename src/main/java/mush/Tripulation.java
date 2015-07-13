@@ -14,12 +14,14 @@ import util.Filter;
 public class Tripulation {
 
 	private List<Player> players;
+	private List<Player> deadPlayers;
 	private int playersAmount;
 	private int mushAmount;
 	private List<User> mushUsers;
 
 	Tripulation() {
 		players = new ArrayList<Player>();
+		deadPlayers = new ArrayList<Player>();
 		mushUsers = new ArrayList<User>();
 	}
 
@@ -42,6 +44,7 @@ public class Tripulation {
 		if (player.isMush()) {
 			mushUsers.remove(player.getUser());
 		}
+		deadPlayers.add(player);
 	}
 
 	public int getPlayersAmount() {

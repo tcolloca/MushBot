@@ -1,13 +1,17 @@
 package mush.ai;
 
+import java.util.List;
+
 import mush.MushValues;
 import mush.Tripulation;
+import mush.player.Player;
 
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 
 import util.StringConverter;
 import bot.IrcBot;
+import bot.MushBot;
 
 import com.google.common.collect.Lists;
 
@@ -72,7 +76,7 @@ public class Narrator implements MushValues {
 			announceUserHeIsMush(user);
 		}
 	}
-	
+
 	private void announceUserHeIsMush(User user) {
 		bot.sendPrivateResourceMessage(user, MUSH_USER_IS_MUSH);
 	}
@@ -83,9 +87,11 @@ public class Narrator implements MushValues {
 			announceMushAttack(user, tripulation);
 		}
 	}
-	
+
 	private void announceMushAttack(User user, Tripulation tripulation) {
-		bot.sendPrivateResourceMessage(user, MUSH_MUSH_ATTACK, Lists.newArrayList(StringConverter.stringfyList(tripulation.getHumans())));
+		bot.sendPrivateResourceMessage(user, MUSH_MUSH_ATTACK, Lists
+				.newArrayList(StringConverter.stringfyList(tripulation
+						.getHumans())));
 	}
 
 	public void announceNotAllowedGameAction(User user) {
@@ -105,14 +111,33 @@ public class Narrator implements MushValues {
 	}
 
 	public void announceUknownVote(User user, String string) {
-		bot.sendPrivateResourceMessage(user, MUSH_VOTE_UNKNOWN, Lists.newArrayList(string));
+		bot.sendPrivateResourceMessage(user, MUSH_VOTE_UNKNOWN,
+				Lists.newArrayList(string));
 	}
 
 	public void announceVote(User user, User voted) {
-		bot.sendPrivateResourceMessage(user, MUSH_VOTE_VOTE, Lists.newArrayList(voted.getNick()));
+		bot.sendPrivateResourceMessage(user, MUSH_VOTE_VOTE,
+				Lists.newArrayList(voted.getNick()));
 	}
 
 	public void announceVoteResult(Channel mushChannel, User mostVotedUser) {
-		bot.sendResourceMessage(mushChannel, MUSH_VOTE_RESULT, Lists.newArrayList(mostVotedUser.getNick()));
+		bot.sendResourceMessage(mushChannel, MUSH_VOTE_RESULT,
+				Lists.newArrayList(mostVotedUser.getNick()));
+	}
+
+	public void announceAction(String key, List<String> args) {
+		bot.sendResourceMessage(key, args);
+	}
+
+	public void announceDeath(Player player) {
+		bot.sendResourceMessage(MUSH_PLAYER_DEAD,
+				Lists.newArrayList(player.getNick()));
+		List<String> roles = player.getRoleNames();
+		for (String role : roles) {
+			bot.sendResourceMessage(
+					MUSH_PLAYER_ROLE,
+					Lists.newArrayList(player.getNick(),
+							((MushBot) bot).getMessage(role)));
+		}
 	}
 }

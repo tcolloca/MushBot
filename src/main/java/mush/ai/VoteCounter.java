@@ -73,7 +73,7 @@ public class VoteCounter {
 			return null;
 		}
 		List<User> users = new ArrayList<User>();
-		if (votesDifference() == 0) {
+		if (isVotationEven()) {
 			int amount = votesPerUser.first().votes;
 			for (Vote vote : votesPerUser) {
 				if (vote.votes == amount) {
@@ -85,9 +85,13 @@ public class VoteCounter {
 		}
 		return users;
 	}
+	
+	public boolean isVotationEven() {
+		return votesDifference() == 0;
+	}
 
 	public User getElected() {
-		if (votesDifference() == 0) {
+		if (isVotationEven()) {
 			return getVote(leader.getUser()).voted;
 		}
 		return votesPerUser.first().voted;

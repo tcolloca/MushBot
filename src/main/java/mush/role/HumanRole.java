@@ -2,16 +2,16 @@ package mush.role;
 
 import java.util.List;
 
-public class MushRole extends BasicRole implements Role {
+public class HumanRole extends BasicRole implements Role {
 
 	@Override
 	public boolean isMush() {
-		return true;
+		return false;
 	}
-
+	
 	public List<String> getRoleNames() {
 		List<String> roleNames = super.getRoleNames();
-		roleNames.add(ROLE_MUSH);
+		roleNames.add(ROLE_HUMAN);
 		return roleNames;
 	}
 }
