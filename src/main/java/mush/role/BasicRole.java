@@ -1,10 +1,10 @@
 package mush.role;
 
-public class BasicRole implements Role {
+import java.util.List;
 
-	public boolean isMush() {
-		return false;
-	}
+import com.google.common.collect.Lists;
+
+public abstract class BasicRole implements Role {
 
 	public int getAvailableVotes() {
 		return 1;
@@ -14,4 +14,9 @@ public class BasicRole implements Role {
 		return false;
 	}
 
+	public List<String> getRoleNames() {
+		return Lists.newArrayList();
+	}
+
+	public abstract boolean isMush();
 }

@@ -23,7 +23,6 @@ import util.MessagesValues;
 import util.StringConverter;
 
 import com.google.common.collect.Lists;
-
 import command.IrcBotCommand;
 
 @SuppressWarnings("rawtypes")
@@ -81,6 +80,14 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 		}
 	}
 
+	public String getMessage(String key) {
+		return messagesManager.get(key);
+	}
+
+	public String getMessage(String key, List<String> args) {
+		return messagesManager.get(key, args != null ? args.toArray() : null);
+	}
+
 	public void sendMessage(Channel channel, String message) {
 		String[] lines = message.split("\r\n");
 		for (String line : lines) {
@@ -93,7 +100,7 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 	}
 
 	public void sendResourceMessage(Channel channel, String key) {
-		sendMessage(channel, messagesManager.get(key));
+		sendMessage(channel, getMessage(key));
 	}
 
 	public void sendResourceMessage(String key, List<String> args) {
@@ -102,8 +109,7 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 
 	public void sendResourceMessage(Channel channel, String key,
 			List<String> args) {
-		sendMessage(channel,
-				messagesManager.get(key, args != null ? args.toArray() : null));
+		sendMessage(channel, getMessage(key, args));
 	}
 
 	public void sendPrivateMessage(User user, String message) {
@@ -118,13 +124,12 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 	}
 
 	public void sendPrivateResourceMessage(User user, String key) {
-		sendPrivateMessage(user, messagesManager.get(key));
+		sendPrivateMessage(user, getMessage(key));
 	}
 
 	public void sendPrivateResourceMessage(User user, String key,
 			List<String> args) {
-		sendPrivateMessage(user,
-				messagesManager.get(key, args != null ? args.toArray() : null));
+		sendPrivateMessage(user, getMessage(key, args));
 	}
 
 	public void changeLanguage(String lang) {
@@ -168,11 +173,11 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 	public void silenceAll(Channel channel) {
 		ChannelHandler.silenceAll(channel);
 	}
-	
+
 	public void silenceMainChannel() {
 		ChannelHandler.silenceAll(mainChannel);
 	}
-	
+
 	public void silenceMushChannel() {
 		ChannelHandler.silenceAll(mushChannel);
 	}
@@ -234,5 +239,4 @@ public class MushBot extends ListenerAdapter implements IrcBot, MessagesValues {
 	public void announceMushVoteResult(User electedUser) {
 		narrator.announceVoteResult(mushChannel, electedUser);
 	}
-
 }

@@ -11,9 +11,13 @@ public class AI {
 	public void startGame(List<Player> players) {
 		int mushAmount = calculateMush(players.size());
 		Collections.shuffle(players);
-		for (int i = 0; i < mushAmount; i++) {
+		for (int i = 0; i < players.size(); i++) {
 			Player player = players.get(i);
-			player.convertToMush();
+			if (i < mushAmount) {
+				player.convertToMush();
+			} else {
+				player.convertToHuman();
+			}
 		}
 	}
 

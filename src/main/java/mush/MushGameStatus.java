@@ -2,7 +2,7 @@ package mush;
 
 public enum MushGameStatus {
 
-	JOINING_PHASE, STARTING_PHASE, MUSH_ATTACK_PHASE, ENDED;
+	JOINING_PHASE, STARTING_PHASE, MUSH_ATTACK_PHASE, ACTIONS_PHASE, ENDED;
 	
 	public boolean hasStarted() {
 		return this != ENDED;
@@ -26,5 +26,9 @@ public enum MushGameStatus {
 
 	public boolean isVotingPhase() {
 		return isMushAttackPhase();
+	}
+
+	public boolean isActionsPhase() {
+		return this == ACTIONS_PHASE;
 	}
 }
