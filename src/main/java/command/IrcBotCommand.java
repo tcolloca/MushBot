@@ -5,6 +5,7 @@ import java.util.List;
 import org.pircbotx.hooks.types.GenericMessageEvent;
 
 import util.MessagePack;
+import util.StringConverter;
 import bot.IrcBot;
 
 public abstract class IrcBotCommand implements CommandValues, HelpValues {
@@ -22,14 +23,6 @@ public abstract class IrcBotCommand implements CommandValues, HelpValues {
 	abstract MessagePack getHelp(IrcBot bot, GenericMessageEvent event);
 
 	public String toString() {
-		if (args.isEmpty()) {
-			return "";
-		} else {
-			String s = args.get(0);
-			for (String arg : args.subList(1, args.size())) {
-				s += " " + arg;
-			}
-			return s;
-		}
+		return StringConverter.stringfyList(args, " ", "", "");
 	}
 }

@@ -10,11 +10,13 @@ import java.util.Set;
 import mush.action.Action;
 import mush.action.MushKillAction;
 import mush.ai.AI;
+import mush.ai.ChannelHandler;
 import mush.ai.Narrator;
 import mush.ai.VoteCounter;
 import mush.player.Player;
 import mush.properties.GameProperties;
 
+import org.pircbotx.Channel;
 import org.pircbotx.User;
 
 import util.MessagePack;
@@ -29,9 +31,10 @@ public class MushGame implements MushValues, Runnable {
 	private Thread timeoutsThread;
 
 	private MushBot bot;
-	private Narrator narrator;
 	private GameProperties gameProperties;
 
+	private Narrator narrator;
+	private Channel mushChannel;
 	private MushGameStatus status;
 	private Map<User, Player> usersMap;
 	private Tripulation tripulation;
@@ -51,11 +54,10 @@ public class MushGame implements MushValues, Runnable {
 		phases.add(MushGameStatus.ENDED);
 	}
 
-	public MushGame(MushBot bot, Narrator narrator,
-			GameProperties gameProperties) {
+	public MushGame(MushBot bot, GameProperties gameProperties) {
 		this.bot = bot;
-		this.narrator = narrator;
 		this.gameProperties = gameProperties;
+		this.narrator = new Narrator(bot);
 		usersMap = new HashMap<User, Player>();
 		tripulation = new Tripulation();
 		timeoutsThread = new Thread(this);
@@ -65,7 +67,6 @@ public class MushGame implements MushValues, Runnable {
 
 	public void newGame() {
 		startPhase();
-		narrator.announceNewGameCreated();
 		timeoutsThread.start();
 	}
 
@@ -73,13 +74,11 @@ public class MushGame implements MushValues, Runnable {
 		Player player = new Player(user);
 		tripulation.addPlayer(player);
 		usersMap.put(user, player);
-		narrator.announcePlayerJoins(user);
 	}
 
 	public void startGame() {
 		if (ai.canStart(tripulation.getPlayers())) {
 			nextPhase();
-			narrator.announceGameStarts();
 			ai.startGame(tripulation.getPlayers());
 			tripulation.build();
 			narrator.announceTripulation(tripulation);
@@ -99,23 +98,26 @@ public class MushGame implements MushValues, Runnable {
 	}
 
 	public void vote(User user, String string) {
-		User voted;
-		boolean hasVoted = voteCounter.hasVoted(user);
-		if (hasVoted && !gameProperties.isRevotingAllowed()) {
-			narrator.announceAlreadyVoted(user);
-		} else {
-			if (hasVoted) {
-				voteCounter.removeVote(user);
-			}
-			if ((voted = voteCounter.vote(user, string)) == null) {
-				narrator.announceUknownVote(user, string);
-			} else {
-				narrator.announceVote(user, voted);
-			}
+		boolean hasVoted = hasVoted(user);
+		if (hasVoted) {
+			voteCounter.removeVote(user);
 		}
+		voteCounter.vote(user, string);
 		if (isAnElectedUser()) {
 			concludeVoting();
 		}
+	}
+
+	public boolean canVote(User user) {
+		return !hasVoted(user) && !gameProperties.isRevotingAllowed();
+	}
+
+	public boolean isVotable(String prefix) {
+		return voteCounter.isVotable(prefix);
+	}
+
+	public User getVoted(String string) {
+		return voteCounter.getVoted(string);
 	}
 
 	public void killPlayer(Player player) {
@@ -193,11 +195,11 @@ public class MushGame implements MushValues, Runnable {
 	}
 
 	private void startMushAttack() {
-		bot.silenceMainChannel();
+		bot.silenceChannel();
 		nextPhase();
 		narrator.announceMushAttack(tripulation);
 		joinMushChannel();
-		bot.inviteToMushChannel(tripulation.getMushUsers());
+		bot.inviteToChannel(mushChannel, tripulation.getMushUsers());
 	}
 
 	private void joinMushChannel() {
@@ -254,12 +256,16 @@ public class MushGame implements MushValues, Runnable {
 		case MUSH_ATTACK_PHASE:
 			roundActions.add(new MushKillAction(tripulation.getRandomMush(),
 					getPlayer(electedUser)));
-			bot.announceMushVoteResult(electedUser);
+			narrator.announceMushVoteResult(electedUser);
 			break;
 		default:
 			break;
 		}
 		nextPhase();
+	}
+
+	private boolean hasVoted(User user) {
+		return voteCounter.hasVoted(user);
 	}
 
 	private boolean isAnElectedUser() {
@@ -284,5 +290,11 @@ public class MushGame implements MushValues, Runnable {
 			tripulation.killPlayer(player);
 			narrator.announceDeath(player);
 		}
+	}
+
+	public void setMushChannel(Channel mushChannel) {
+		this.mushChannel = mushChannel;
+		narrator.setMushChannel(mushChannel);
+		ChannelHandler.prepareMushChannel(mushChannel);
 	}
 }

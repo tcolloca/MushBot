@@ -18,13 +18,18 @@ public class ErrorCommand extends IrcBotCommand {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void execute(IrcBot bot, GenericMessageEvent event) {
-		bot.sendPrivateResourceMessage(event.getUser(), COMMAND_INVALID,
-				Lists.newArrayList(toString()));
+		invalidCommand(bot, event);
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Override
 	MessagePack getHelp(IrcBot bot, GenericMessageEvent event) {
 		return new MessagePack(COMMAND_INVALID, Lists.newArrayList(toString()));
+	}
+
+	@SuppressWarnings("rawtypes")
+	private void invalidCommand(IrcBot bot, GenericMessageEvent event) {
+		bot.sendPrivateResourceMessage(event.getUser(), COMMAND_INVALID,
+				Lists.newArrayList(toString()));
 	}
 }

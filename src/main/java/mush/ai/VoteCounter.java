@@ -56,6 +56,10 @@ public class VoteCounter {
 		return null;
 	}
 
+	public boolean isVotable(String prefix) {
+		return getVoted(prefix) != null;
+	}
+
 	public void removeVote(User voter) {
 		Vote vote = getVote(voter);
 		addVotes(vote.voted, -vote.votes);
@@ -85,7 +89,7 @@ public class VoteCounter {
 		}
 		return users;
 	}
-	
+
 	public boolean isVotationEven() {
 		return votesDifference() == 0;
 	}
@@ -166,6 +170,15 @@ public class VoteCounter {
 				}
 			}
 		}
+	}
+
+	public User getVoted(String prefix) {
+		for (String key : prefixes.keySet()) {
+			if (prefix.toLowerCase().startsWith(key)) {
+				return prefixes.get(key);
+			}
+		}
+		return null;
 	}
 
 	private void addVotes(User user, int i) {

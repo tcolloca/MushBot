@@ -16,4 +16,15 @@ interface CommandValues {
 	static final String HELP_NO_COMMAND = "help_no_command";
 	static final String HELP_INVALID = "help_invalid";
 	static final String HELP = "help";
+	
+	public static final String MUSH_CREATE_NEW = "mush_create_new";
+	public static final String MUSH_CREATE_ALREADY = "mush_create_already";
+	
+	public static final String MUSH_JOIN_NEW = "mush_join_new";
+	public static final String MUSH_JOIN_ALREADY = "mush_join_already";
+	public static final String MUSH_JOIN_INVALID = "mush_join_invalid";
+	
+	public static final String MUSH_START_NEW = "mush_start_new";
+	public static final String MUSH_START_ALREADY = "mush_start_already";
+	public static final String MUSH_START_INVALID = "mush_start_invalid";
 }

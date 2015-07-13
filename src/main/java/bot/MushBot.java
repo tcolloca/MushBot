@@ -4,7 +4,6 @@ import java.util.List;
 
 import mush.MushGame;
 import mush.ai.ChannelHandler;
-import mush.ai.Narrator;
 import mush.properties.GameProperties;
 
 import org.pircbotx.Channel;
@@ -31,19 +30,16 @@ public class MushBot extends ListenerAdapter implements IrcBot {
 
 	private PircBotX bot;
 	private Channel mainChannel;
-	private Channel mushChannel;
 
 	private CommandParser parser;
 	private MessagesManager messagesManager;
 
-	private Narrator narrator;
 	private MushGame mushGame;
 	private GameProperties gameProperties;
 
 	public MushBot() {
 		parser = new CommandParser();
 		messagesManager = new MessagesManager();
-		narrator = new Narrator(this);
 	}
 
 	public void setBot(PircBotX bot) {
@@ -60,8 +56,7 @@ public class MushBot extends ListenerAdapter implements IrcBot {
 			bot.sendIRC().identify(ConnectionProperties.password());
 		}
 		if (event.getChannel().getName().contains(MushGame.MUSH_CHANNEL_PREFIX)) {
-			mushChannel = event.getChannel();
-			ChannelHandler.prepareMushChannel(mushChannel);
+			mushGame.setMushChannel(event.getChannel());
 		}
 	}
 
@@ -143,73 +138,45 @@ public class MushBot extends ListenerAdapter implements IrcBot {
 		bot.sendIRC().joinChannel(channel);
 	}
 
-	public void silenceAll(Channel channel) {
+	public void silenceChannel() {
+		silenceChannel(mainChannel);
+	}
+
+	public void silenceChannel(Channel channel) {
 		ChannelHandler.silenceAll(channel);
 	}
 
-	public void silenceMainChannel() {
-		ChannelHandler.silenceAll(mainChannel);
-	}
-
-	public void silenceMushChannel() {
-		ChannelHandler.silenceAll(mushChannel);
-	}
-
-	public void createGame(User user) {
-		if (mushGame != null && mushGame.hasStarted()) {
-			narrator.announceGameAlreadyCreated(user);
-		} else {
-			mushGame = new MushGame(this, narrator, gameProperties);
-		}
-	}
-
-	public void addPlayer(User user) {
-		if (mushGame == null || !mushGame.isInJoiningPhase()) {
-			narrator.announceInvalidJoining(user);
-		} else if (mushGame.isPlaying(user)) {
-			narrator.annouceAlreadyJoined(user);
-		} else {
-			mushGame.addPlayer(user);
-		}
-	}
-
-	public void startGame(User user) {
-		if (mushGame == null) {
-			narrator.announceInvalidStart(user);
-		} else if (!mushGame.isInJoiningPhase()) {
-			narrator.announceGameAlreadyStarted(user);
-		} else {
-			mushGame.startGame();
-		}
-	}
-
-	public void mushVote(User user, String string) {
-		if (mushGame == null || !mushGame.isPlaying(user)) {
-			narrator.announceNotAllowedGameAction(user);
-		} else if (!mushGame.isMush(user)) {
-			narrator.announceNotAllowedMushAction(user);
-		} else if (!mushGame.isInMushAttackPhase()) {
-			narrator.announceNotMushAttackTime(user);
-		} else {
-			mushGame.vote(user, string);
-		}
-	}
-
-	public void inviteToMushChannel(List<User> users) {
-		while (mushChannel == null) {
+	public void inviteToChannel(Channel channel, List<User> users) {
+		while (channel == null) {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
 		}
-		ChannelHandler.inviteToChannel(mushChannel, users);
+		ChannelHandler.inviteToChannel(channel, users);
+	}
+
+	public MushGame getMushGame() {
+		return mushGame;
+	}
+
+	public void createGame() {
+		mushGame = new MushGame(this, gameProperties);
+	}
+
+	public void addPlayer(User user) {
+		mushGame.addPlayer(user);
+	}
+
+	public void startGame() {
+		mushGame.startGame();
+	}
+
+	public void mushVote(User user, String string) {
+		mushGame.vote(user, string);
 	}
 
 	public void endGame() {
 		mushGame = null;
-	}
-
-	public void announceMushVoteResult(User electedUser) {
-		narrator.announceVoteResult(mushChannel, electedUser);
 	}
 }

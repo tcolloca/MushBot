@@ -26,12 +26,16 @@ public interface IrcBot {
 
 	public void sendPrivateResourceMessage(User user, String key,
 			List<String> args);
-	
+
 	public void changeLanguage(String lang);
 
 	public List<String> getAvailableCommands();
 
 	public void joinChannel(String channel);
 
-	public void silenceAll(Channel channel);
+	public void silenceChannel();
+
+	public void silenceChannel(Channel channel);
+
+	public void inviteToChannel(Channel channel, List<User> users);
 }

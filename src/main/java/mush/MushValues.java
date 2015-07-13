@@ -2,18 +2,7 @@ package mush;
 
 public interface MushValues {
 
-	public static final String MUSH_CREATE_NEW = "mush_create_new";
-	public static final String MUSH_CREATE_ALREADY = "mush_create_already";
-	
-	public static final String MUSH_JOIN_NEW = "mush_join_new";
-	public static final String MUSH_JOIN_ALREADY = "mush_join_already";
-	public static final String MUSH_JOIN_INVALID = "mush_join_invalid";
-	
 	public static final String MUSH_REQUIRED_PLAYERS = "mush_required_players";
-	
-	public static final String MUSH_START_NEW = "mush_start_new";
-	public static final String MUSH_START_ALREADY = "mush_start_already";
-	public static final String MUSH_START_INVALID = "mush_start_invalid";
 	
 	public static final String MUSH_USER_IS_MUSH = "mush_user_is_mush";
 	public static final String MUSH_PLAYERS_AMOUNT = "mush_players_amount";

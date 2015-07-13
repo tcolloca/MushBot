@@ -25,8 +25,8 @@ public class MessagesManager {
 			this.lang = lang;
 		} else {
 			resourceBundle = ResourceBundlesManager
-					.getResourceBundle(DefaultProperties.DEFAULT_LANG);
-			this.lang = DefaultProperties.DEFAULT_LANG;
+					.getResourceBundle(DefaultProperties.language());
+			this.lang = DefaultProperties.language();
 		}
 
 	}

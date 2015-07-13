@@ -22,15 +22,15 @@ public class LanguageCommand extends IrcBotCommand {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void execute(IrcBot bot, GenericMessageEvent event) {
+		User user = event.getUser();
 		if (args.size() <= 1) {
-			bot.sendPrivateResourceMessage(event.getUser(), LANG_NO_LANG);
+			noLanguage(bot, user);
 		} else if (CommandsManager.isCommand(CommandName.ALL, args.get(1))) {
 			showAllAvailableLanguages(bot, event.getUser());
 		} else if (!ResourceBundlesManager.hasLanguage(args.get(1))) {
-			bot.sendPrivateResourceMessage(event.getUser(), LANG_INVALID, args);
+			invalidLanguage(bot, user);
 		} else {
-			bot.changeLanguage(args.get(1));
-			bot.sendResourceMessage(LANG_CHANGED, args);
+			changeLanguage(bot, user);
 		}
 	}
 
@@ -45,6 +45,10 @@ public class LanguageCommand extends IrcBotCommand {
 			return new MessagePack(HELP_LANG_LANG, Lists.newArrayList(args
 					.get(1)));
 		}
+	}
+
+	private void noLanguage(IrcBot bot, User user) {
+		bot.sendPrivateResourceMessage(user, LANG_NO_LANG);
 	}
 
 	private void showAllAvailableLanguages(IrcBot bot, User user) {
@@ -65,5 +69,14 @@ public class LanguageCommand extends IrcBotCommand {
 			bot.sendPrivateResourceMessage(user, LANG_AVL_LANGS,
 					Lists.newArrayList(s, lastLanguage));
 		}
+	}
+
+	private void invalidLanguage(IrcBot bot, User user) {
+		bot.sendPrivateResourceMessage(user, LANG_INVALID, args);
+	}
+
+	private void changeLanguage(IrcBot bot, User user) {
+		bot.changeLanguage(args.get(1));
+		bot.sendResourceMessage(LANG_CHANGED, args);
 	}
 }

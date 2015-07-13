@@ -20,16 +20,9 @@ public class HelpCommand extends IrcBotCommand {
 	@Override
 	public void execute(IrcBot bot, GenericMessageEvent event) {
 		if (args.size() <= 1) {
-			List<String> availableCommands = bot.getAvailableCommands();
-			bot.sendPrivateResourceMessage(event.getUser(), HELP, Lists
-					.newArrayList(StringConverter.stringfyList(
-							availableCommands, "\"")));
+			helpCommand(bot, event);
 		} else {
-			IrcBotCommand helpCommand = CommandFactory.build(args.get(1),
-					args.subList(1, args.size()));
-			MessagePack pack = helpCommand.getHelp(bot, event);
-			bot.sendPrivateResourceMessage(event.getUser(), pack.getKey(),
-					pack.getArgs());
+			helpCommandWithArguments(bot, event);
 		}
 	}
 
@@ -46,4 +39,20 @@ public class HelpCommand extends IrcBotCommand {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
+	private void helpCommand(IrcBot bot, GenericMessageEvent event) {
+		List<String> availableCommands = bot.getAvailableCommands();
+		bot.sendPrivateResourceMessage(event.getUser(), HELP, Lists
+				.newArrayList(StringConverter.stringfyList(availableCommands,
+						"\"")));
+	}
+
+	@SuppressWarnings("rawtypes")
+	private void helpCommandWithArguments(IrcBot bot, GenericMessageEvent event) {
+		IrcBotCommand helpCommand = CommandFactory.build(args.get(1),
+				args.subList(1, args.size()));
+		MessagePack pack = helpCommand.getHelp(bot, event);
+		bot.sendPrivateResourceMessage(event.getUser(), pack.getKey(),
+				pack.getArgs());
+	}
 }
