@@ -13,7 +13,9 @@ public interface MushValues {
 	public static final String MUSH_MUSH_ATTACK = "mush_mush_attack";
 	
 	public static final String MUSH_GAME_ACTION_NOT_ALLOWED = "mush_game_action_not_allowed";
-	public static final String MUSH_MUSH_ACTION_NOT_ALLOWED = "mush_mush_action_not_allowed";
+	public static final String MUSH_GAME_ACTION_INVALID_TIME = "mush_game_action_invalid_time";
+	
+	public static final String MUSH_GAME_ACTION_ROLE_REQUIRED = "mush_game_action_role_required";
 	
 	public static final String MUSH_VOTE_NO_NICK = "mush_vote_no_nick";
 	public static final String MUSH_VOTE_INVALID = "mush_vote_invalid";
