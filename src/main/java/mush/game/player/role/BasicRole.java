@@ -17,6 +17,17 @@ public abstract class BasicRole implements Role {
 	public List<String> getRoleNames() {
 		return Lists.newArrayList();
 	}
-
+	
+	public boolean is(String string){
+		List<String> roleNames = this.getRoleNames();
+		
+		for (String role : roleNames) {
+			if(role.equals(string)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public abstract boolean isMush();
 }

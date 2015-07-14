@@ -14,4 +14,5 @@ public class HumanRole extends BasicRole implements Role {
 		roleNames.add(ROLE_HUMAN);
 		return roleNames;
 	}
+	
 }

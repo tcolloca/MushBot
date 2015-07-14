@@ -13,13 +13,14 @@ import mush.game.ai.ChannelHandler;
 import mush.game.ai.Narrator;
 import mush.game.ai.VoteCounter;
 import mush.game.player.Player;
+import mush.game.player.role.Role;
 import mush.properties.GameProperties;
 import util.message.MessagePack;
 import chat.Channel;
 import chat.MushBot;
 import chat.User;
 
-public class MushGame {
+public class MushGame{
 
 	public static final String MUSH_CHANNEL_PREFIX = "mush_channel_";
 
@@ -240,6 +241,16 @@ public class MushGame {
 		}
 	}
 
+	private void check(User user, String string) {
+
+		if (getPlayer(user).isMush()) {
+			narrator.announceUserCheck(user, string, Role.ROLE_MUSH);
+		}
+		else{
+			narrator.announceUserCheck(user, string, Role.ROLE_HUMAN);
+		}
+	}
+	
 	boolean canVote(User user) {
 		return !hasVoted(user) || gameProperties.isRevotingAllowed();
 	}
@@ -308,6 +319,8 @@ public class MushGame {
 		case MUSH_VOTE:
 		case VOTE:
 			vote(user, args.get(1));
+		case MUSH_CHECK:
+			check(user, args.get(1));
 		default:
 			break;
 		}
@@ -327,6 +340,10 @@ public class MushGame {
 		return usersMap.get(user).isMush();
 	}
 
+	boolean is(User user, String role) {
+		return usersMap.get(user).is(role);
+	}
+	
 	private Player getPlayer(User user) {
 		return usersMap.get(user);
 	}

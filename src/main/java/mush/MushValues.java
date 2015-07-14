@@ -27,4 +27,8 @@ public interface MushValues {
 	
 	public static final String MUSH_PLAYER_DEAD = "mush_player_dead";
 	public static final String MUSH_PLAYER_ROLE = "mush_player_role";
+	
+	public static final String MUSH_CHECK_RESULT = "mush_check_result";
+	public static final String MUSH_CHECK_NO_NICK = "mush_check_no_nick";
+	public static final String MUSH_INVALID_PLAYER = "mush_invalid_player";
 }

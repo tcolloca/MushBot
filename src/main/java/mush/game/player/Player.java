@@ -52,4 +52,8 @@ public class Player {
 	public boolean isLeaderVoter() {
 		return role.isLeaderVoter();
 	}
+
+	public boolean is(String roleName) {
+		return role != null && role.is(roleName);
+	}
 }

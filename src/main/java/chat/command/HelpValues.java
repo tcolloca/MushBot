@@ -14,4 +14,6 @@ interface HelpValues {
 	final String HELP_START = "help_start";
 	final String MUSH_VOTE = "help_mush_vote";
 	final String MUSH_VOTE_NICK = "help_mush_vote_nick";
+	final String MUSH_CHECK = "help_mush_check";
+	final String MUSH_CHECK_NICK = "help_mush_check_nick";
 }

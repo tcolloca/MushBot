@@ -4,6 +4,7 @@ import java.util.List;
 
 import chat.command.mush.CreateCommand;
 import chat.command.mush.JoinCommand;
+import chat.command.mush.MushCheckCommand;
 import chat.command.mush.MushVoteCommand;
 import chat.command.mush.StartCommand;
 
@@ -24,6 +25,8 @@ public class CommandFactory {
 			return new StartCommand(args);
 		} else if (CommandsManager.isCommand(CommandName.MUSH_VOTE, command)) {
 			return new MushVoteCommand(args);
+		}		else if (CommandsManager.isCommand(CommandName.MUSH_CHECK, command)) {
+			return new MushCheckCommand(args);
 		}
 		return new ErrorCommand(args, command);
 	}

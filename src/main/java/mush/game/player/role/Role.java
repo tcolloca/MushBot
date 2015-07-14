@@ -11,4 +11,6 @@ public interface Role extends RoleValues {
 	public boolean isLeaderVoter();
 	
 	public List<String> getRoleNames();
+
+	public boolean is(String string);
 }

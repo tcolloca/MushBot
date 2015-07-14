@@ -83,6 +83,10 @@ public class Narrator implements MushValues {
 		}
 	}
 
+	public void announceUserCheck(User user, String nick, String role) {
+		bot.send(user, get(MUSH_CHECK_RESULT, nick, role));
+	}
+	
 	private void announceUserHeIsMush(User user) {
 		bot.send(user, get(MUSH_USER_IS_MUSH));
 	}
@@ -110,4 +114,5 @@ public class Narrator implements MushValues {
 	private String get(String key, List<String> args) {
 		return BotMessagesManager.get(bot, key, args);
 	}
+
 }
