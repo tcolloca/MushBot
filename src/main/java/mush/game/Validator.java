@@ -9,7 +9,34 @@ import chat.User;
 
 public class Validator implements MushValues {
 
-	public static MessagePack validate(MushGame mushGame, User user,
+	private MushGame mushGame;
+
+	Validator(MushGame mushGame) {
+		this.mushGame = mushGame;
+	}
+
+	public boolean canPerformAction(User user,
+			ActionCommandType actionCommandType) {
+		switch (actionCommandType) {
+		case MUSH_VOTE:
+			return mushGame.isMush(user);
+		default:
+			return true;
+		}
+	}
+
+	public boolean isCorrectTime(ActionCommandType actionCommandType) {
+		switch (actionCommandType) {
+		case MUSH_VOTE:
+			return mushGame.isInMushAttackPhase();
+		case VOTE:
+			return mushGame.isInVotingPhase();
+		default:
+			return false;
+		}
+	}
+
+	public MessagePack getActionErrors(User user,
 			ActionCommandType actionCommandType, List<String> args) {
 		switch (actionCommandType) {
 		case MUSH_VOTE:

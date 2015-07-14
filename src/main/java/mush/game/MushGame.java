@@ -37,6 +37,7 @@ public class MushGame {
 	private MushGameStatus status;
 	private Tripulation tripulation;
 	private AI ai;
+	private Validator validator;
 
 	private VoteCounter voteCounter;
 
@@ -58,6 +59,7 @@ public class MushGame {
 		tripulation = new Tripulation();
 		timeoutThread = new Thread(new TimeoutThread(this));
 		ai = new AI(gameProperties);
+		validator = new Validator(this);
 		newGame();
 	}
 
@@ -288,23 +290,16 @@ public class MushGame {
 
 	public boolean canPerformAction(User user,
 			ActionCommandType actionCommandType) {
-		switch (actionCommandType) {
-		case MUSH_VOTE:
-			return isMush(user);
-		default:
-			return true;
-		}
+		return validator.canPerformAction(user, actionCommandType);
 	}
 
 	public boolean isCorrectTime(ActionCommandType actionCommandType) {
-		switch (actionCommandType) {
-		case MUSH_VOTE:
-			return isInMushAttackPhase();
-		case VOTE:
-			return isInVotingPhase();
-		default:
-			return false;
-		}
+		return validator.isCorrectTime(actionCommandType);
+	}
+
+	public MessagePack getActionErrors(User user,
+			ActionCommandType actionCommandType, List<String> args) {
+		return validator.getActionErrors(user, actionCommandType, args);
 	}
 
 	public void performAction(User user, ActionCommandType actionCommandType,
@@ -318,11 +313,6 @@ public class MushGame {
 		}
 	}
 
-	public MessagePack getActionErrors(User user,
-			ActionCommandType actionCommandType, List<String> args) {
-		return Validator.validate(this, user, actionCommandType, args);
-	}
-
 	/*** Getters ***/
 
 	MushGameStatus getStatus() {
@@ -333,11 +323,11 @@ public class MushGame {
 		return gameProperties;
 	}
 
-	private Player getPlayer(User user) {
-		return usersMap.get(user);
+	boolean isMush(User user) {
+		return usersMap.get(user).isMush();
 	}
 
-	private boolean isMush(User user) {
-		return usersMap.get(user).isMush();
+	private Player getPlayer(User user) {
+		return usersMap.get(user);
 	}
 }
