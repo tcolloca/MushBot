@@ -4,8 +4,10 @@ import java.util.List;
 
 public class StringConverter {
 
+	private static String DEFAULT_SEPARATOR = ", ";
+
 	public static <T> String stringfyList(List<T> list) {
-		return stringfyList(list, "", "");
+		return stringfyList(list, "");
 	}
 
 	public static <T> String stringfyList(List<T> list, String enclosing) {
@@ -14,12 +16,17 @@ public class StringConverter {
 
 	public static <T> String stringfyList(List<T> list, String preItem,
 			String postItem) {
+		return stringfyList(list, DEFAULT_SEPARATOR, preItem, postItem);
+	}
+
+	public static <T> String stringfyList(List<T> list, String separator,
+			String preItem, String postItem) {
 		if (list.isEmpty()) {
 			return "";
 		}
 		String s = preItem + list.get(0).toString() + postItem;
 		for (T obj : list.subList(1, list.size())) {
-			s += ", " + preItem + obj.toString() + postItem;
+			s += separator + preItem + obj.toString() + postItem;
 		}
 		return s;
 	}
