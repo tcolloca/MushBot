@@ -241,13 +241,14 @@ public class MushGame{
 		}
 	}
 
-	private void check(User user, String string) {
+	private void check(User user, String nick) {
 
-		if (getPlayer(user).isMush()) {
-			narrator.announceUserCheck(user, string, RoleValues.ROLE_MUSH);
-		}
-		else{
-			narrator.announceUserCheck(user, string, RoleValues.ROLE_HUMAN);
+		User toCheckUser = this.getUser(nick);
+		
+		if (getPlayer(toCheckUser).isMush()) {
+			narrator.announceUserCheck(user, nick, RoleValues.ROLE_MUSH);
+		} else{
+			narrator.announceUserCheck(user, nick, RoleValues.ROLE_HUMAN);
 		}
 	}
 	
@@ -319,8 +320,10 @@ public class MushGame{
 		case MUSH_VOTE:
 		case VOTE:
 			vote(user, args.get(1));
+			break;
 		case MUSH_CHECK:
 			check(user, args.get(1));
+			break;
 		default:
 			break;
 		}
@@ -346,5 +349,14 @@ public class MushGame{
 	
 	private Player getPlayer(User user) {
 		return usersMap.get(user);
+	}
+	
+	public User getUser(String nick){
+		for(User user : usersMap.keySet()) {
+		    if(user.getNick().equals(nick)){
+		    	return user;
+		    }
+		}
+		return null;
 	}
 }

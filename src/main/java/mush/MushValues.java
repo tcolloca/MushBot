@@ -31,4 +31,5 @@ public interface MushValues {
 	public static final String MUSH_CHECK_RESULT = "mush_check_result";
 	public static final String MUSH_CHECK_NO_NICK = "mush_check_no_nick";
 	public static final String MUSH_INVALID_PLAYER = "mush_invalid_player";
+	public static final String MUSH_UNKNOWN_PLAYER = "mush_invalid_player";
 }
