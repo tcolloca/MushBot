@@ -50,7 +50,7 @@ public abstract class MushGameActionCommand extends BotCommand implements
 	private void actionCantBePerformed(MushBot mushBot, User user,
 			ActionCommandType actionCommandType) {
 		mushBot.send(user,
-				BotMessagesManager.get(mushBot, MUSH_GAME_ACTION_ROLE_REQUIRED, getRole()));
+				BotMessagesManager.get(mushBot, MUSH_GAME_ACTION_ROLE_REQUIRED, BotMessagesManager.get(mushBot,getRole())));
 	}
 
 	private void invalidTime(MushBot mushBot, User user,

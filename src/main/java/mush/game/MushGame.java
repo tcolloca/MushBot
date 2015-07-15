@@ -13,7 +13,7 @@ import mush.game.ai.ChannelHandler;
 import mush.game.ai.Narrator;
 import mush.game.ai.VoteCounter;
 import mush.game.player.Player;
-import mush.game.player.role.Role;
+import mush.game.player.role.RoleValues;
 import mush.properties.GameProperties;
 import util.message.MessagePack;
 import chat.Channel;
@@ -244,10 +244,10 @@ public class MushGame{
 	private void check(User user, String string) {
 
 		if (getPlayer(user).isMush()) {
-			narrator.announceUserCheck(user, string, Role.ROLE_MUSH);
+			narrator.announceUserCheck(user, string, RoleValues.ROLE_MUSH);
 		}
 		else{
-			narrator.announceUserCheck(user, string, Role.ROLE_HUMAN);
+			narrator.announceUserCheck(user, string, RoleValues.ROLE_HUMAN);
 		}
 	}
 	

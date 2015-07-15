@@ -4,7 +4,7 @@ import java.util.List;
 
 import mush.MushValues;
 import mush.command.ActionCommandType;
-import mush.game.player.role.Role;
+import mush.game.player.role.RoleValues;
 import util.message.MessagePack;
 import chat.User;
 
@@ -22,7 +22,7 @@ public class Validator implements MushValues {
 		case MUSH_VOTE:
 			return mushGame.isMush(user);
 		case MUSH_CHECK:
-			return mushGame.is(user, Role.ROLE_ELEESHA);
+			return mushGame.is(user, RoleValues.ROLE_ELEESHA);
 		default:
 			return true;
 		}

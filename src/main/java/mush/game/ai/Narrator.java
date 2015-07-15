@@ -84,7 +84,7 @@ public class Narrator implements MushValues {
 	}
 
 	public void announceUserCheck(User user, String nick, String role) {
-		bot.send(user, get(MUSH_CHECK_RESULT, nick, role));
+		bot.send(user, get(MUSH_CHECK_RESULT, nick, get(role)));
 	}
 	
 	private void announceUserHeIsMush(User user) {
