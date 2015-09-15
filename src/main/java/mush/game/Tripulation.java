@@ -7,7 +7,7 @@ import java.util.List;
 import mush.game.player.Player;
 import util.filter.CollectionFilter;
 import util.filter.Filter;
-import chat.User;
+import chat.ChatUser;
 
 public class Tripulation {
 
@@ -15,12 +15,12 @@ public class Tripulation {
 	private List<Player> deadPlayers;
 	private int playersAmount;
 	private int mushAmount;
-	private List<User> mushUsers;
+	private List<ChatUser> mushUsers;
 
 	Tripulation() {
 		players = new ArrayList<Player>();
 		deadPlayers = new ArrayList<Player>();
-		mushUsers = new ArrayList<User>();
+		mushUsers = new ArrayList<ChatUser>();
 	}
 
 	public void build() {
@@ -55,7 +55,7 @@ public class Tripulation {
 		return mush.get(0);
 	}
 
-	public List<User> getMushUsers() {
+	public List<ChatUser> getMushUsers() {
 		return mushUsers;
 	}
 

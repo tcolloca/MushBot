@@ -1,8 +1,8 @@
 package mush.game.action;
 
-import mush.game.MushGame;
+import mush.game.Game;
 import mush.game.player.Player;
-import util.message.MessagePack;
+import util.message.Message;
 
 public abstract class Action implements Comparable<Action>, ActionValues {
 
@@ -15,9 +15,9 @@ public abstract class Action implements Comparable<Action>, ActionValues {
 		this.performer = performer;
 	}
 
-	public abstract void execute(MushGame game);
+	public abstract void execute(Game game);
 
-	public abstract MessagePack getHiddenMessagePack();
+	public abstract Message getHiddenMessagePack();
 
 	public Player getPerformer() {
 		return performer;
@@ -27,7 +27,7 @@ public abstract class Action implements Comparable<Action>, ActionValues {
 		return type.getValue() - o.type.getValue();
 	}
 
-	public final MessagePack getMessagePack() {
+	public final Message getMessagePack() {
 		if (isVisible()) {
 			return getHiddenMessagePack();
 		} else {
@@ -35,7 +35,7 @@ public abstract class Action implements Comparable<Action>, ActionValues {
 		}
 	}
 
-	public MessagePack getVisibleMessagePack() {
+	public Message getVisibleMessagePack() {
 		return null;
 	}
 

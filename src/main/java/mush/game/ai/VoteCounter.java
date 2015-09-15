@@ -8,15 +8,15 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import chat.User;
+import chat.ChatUser;
 import mush.game.player.Player;
 
 public class VoteCounter {
 
 	List<Player> voters;
 	List<Player> votees;
-	Map<String, User> prefixes;
-	Map<User, Vote> votersVotes;
+	Map<String, ChatUser> prefixes;
+	Map<ChatUser, Vote> votersVotes;
 	SortedSet<Vote> votesPerUser;
 	private int totalVotes;
 	private int votesCount;
@@ -25,28 +25,28 @@ public class VoteCounter {
 	public VoteCounter(List<Player> voters, List<Player> votees) {
 		this.voters = voters;
 		this.votees = votees;
-		votersVotes = new HashMap<User, Vote>();
+		votersVotes = new HashMap<ChatUser, Vote>();
 		initPrefixes(votees);
 		votesPerUser = new TreeSet<Vote>();
-		for (User user : prefixes.values()) {
+		for (ChatUser user : prefixes.values()) {
 			votesPerUser.add(new Vote(user, 0));
 		}
 		totalVotes = calculateTotalVotes(voters);
 		votesCount = 0;
 	}
 
-	public User vote(User user, String prefix) {
+	public ChatUser vote(ChatUser user, String prefix) {
 		return vote(user, prefix, 1);
 	}
 
-	public boolean hasVoted(User user) {
+	public boolean hasVoted(ChatUser user) {
 		return votersVotes.containsKey(user);
 	}
 
-	public User vote(User user, String prefix, int i) {
+	public ChatUser vote(ChatUser user, String prefix, int i) {
 		for (String key : prefixes.keySet()) {
 			if (prefix.toLowerCase().startsWith(key)) {
-				User voted = prefixes.get(key);
+				ChatUser voted = prefixes.get(key);
 				addVotes(voted, i);
 				votersVotes.put(user, new Vote(voted, i));
 				return voted;
@@ -59,7 +59,7 @@ public class VoteCounter {
 		return getVoted(prefix) != null;
 	}
 
-	public void removeVote(User voter) {
+	public void removeVote(ChatUser voter) {
 		Vote vote = getVote(voter);
 		addVotes(vote.voted, -vote.votes);
 	}
@@ -71,11 +71,11 @@ public class VoteCounter {
 		return false;
 	}
 
-	public List<User> mostVoted() {
+	public List<ChatUser> mostVoted() {
 		if (votesPerUser.isEmpty()) {
 			return null;
 		}
-		List<User> users = new ArrayList<User>();
+		List<ChatUser> users = new ArrayList<ChatUser>();
 		if (isVotationEven()) {
 			int amount = votesPerUser.first().votes;
 			for (Vote vote : votesPerUser) {
@@ -93,7 +93,7 @@ public class VoteCounter {
 		return votesDifference() == 0;
 	}
 
-	public User getElected() {
+	public ChatUser getElected() {
 		if (isVotationEven()) {
 			return getVote(leader.getUser()).voted;
 		}
@@ -101,7 +101,7 @@ public class VoteCounter {
 	}
 
 	public boolean hasVotedMostVoted(Player voter) {
-		List<User> mostVotedUsers = mostVoted();
+		List<ChatUser> mostVotedUsers = mostVoted();
 		if (mostVotedUsers == null) {
 			return false;
 		}
@@ -134,29 +134,29 @@ public class VoteCounter {
 		return hasVotedMostVoted(leader);
 	}
 
-	private Vote getVote(User voter) {
+	private Vote getVote(ChatUser voter) {
 		return votersVotes.get(voter);
 	}
 
 	private void initPrefixes(List<Player> players) {
-		prefixes = new HashMap<String, User>();
+		prefixes = new HashMap<String, ChatUser>();
 		List<Player> playersCopy = new ArrayList<Player>(players);
 		for (int i = 0; !playersCopy.isEmpty(); i++) {
 			Iterator<Player> it = playersCopy.iterator();
 			List<String> finalNicks = new ArrayList<String>();
 			List<String> removedPrefixes = new ArrayList<String>();
 			while (it.hasNext()) {
-				User user = it.next().getUser();
+				ChatUser user = it.next().getUser();
 				if (!prefixes.containsValue(user)) {
-					String nick = user.getNick().toLowerCase();
+					String nick = user.getUsername().toLowerCase();
 					if (i == nick.length() - 1) {
-						finalNicks.add(user.getNick());
+						finalNicks.add(user.getUsername());
 						prefixes.put(nick, user);
 					} else if (i < nick.length()) {
 						String prefix = nick.substring(0, i + 1);
 						if (prefixes.containsKey(prefix)
 								&& !finalNicks.contains(prefixes.get(prefix)
-										.getNick())) {
+										.getUsername())) {
 							prefixes.remove(prefix);
 							removedPrefixes.add(prefix);
 						} else if (!removedPrefixes.contains(prefix)
@@ -171,7 +171,7 @@ public class VoteCounter {
 		}
 	}
 
-	public User getVoted(String prefix) {
+	public ChatUser getVoted(String prefix) {
 		for (String key : prefixes.keySet()) {
 			if (prefix.toLowerCase().startsWith(key)) {
 				return prefixes.get(key);
@@ -180,11 +180,11 @@ public class VoteCounter {
 		return null;
 	}
 
-	private void addVotes(User user, int i) {
+	private void addVotes(ChatUser user, int i) {
 		votesCount += i;
 		Vote voteToModify = null;
 		for (Vote vote : votesPerUser) {
-			if (vote.voted.getNick().equals(user.getNick())) {
+			if (vote.voted.getUsername().equals(user.getUsername())) {
 				voteToModify = vote;
 				break;
 			}
@@ -226,10 +226,10 @@ public class VoteCounter {
 
 	private class Vote implements Comparable<Vote> {
 
-		private User voted;
+		private ChatUser voted;
 		private int votes;
 
-		public Vote(User voted, int votes) {
+		public Vote(ChatUser voted, int votes) {
 			super();
 			this.voted = voted;
 			this.votes = votes;
@@ -242,7 +242,7 @@ public class VoteCounter {
 			result = prime * result + getOuterType().hashCode();
 			result = prime
 					* result
-					+ ((voted.getNick() == null) ? 0 : voted.getNick()
+					+ ((voted.getUsername() == null) ? 0 : voted.getUsername()
 							.hashCode());
 			return result;
 		}
@@ -261,7 +261,7 @@ public class VoteCounter {
 			if (voted == null) {
 				if (other.voted != null)
 					return false;
-			} else if (!voted.getNick().equals(other.voted.getNick()))
+			} else if (!voted.getUsername().equals(other.voted.getUsername()))
 				return false;
 			return true;
 		}
@@ -273,7 +273,7 @@ public class VoteCounter {
 		public int compareTo(Vote o) {
 			int votesDiff = -(votes - o.votes);
 			if (votesDiff == 0) {
-				return voted.getNick().compareTo(o.voted.getNick());
+				return voted.getUsername().compareTo(o.voted.getUsername());
 			}
 			return votesDiff;
 		}

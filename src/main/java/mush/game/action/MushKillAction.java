@@ -1,8 +1,8 @@
 package mush.game.action;
 
-import mush.game.MushGame;
+import mush.game.Game;
 import mush.game.player.Player;
-import util.message.MessagePack;
+import util.message.Message;
 
 public class MushKillAction extends Action {
 
@@ -18,18 +18,19 @@ public class MushKillAction extends Action {
 	}
 
 	@Override
-	public void execute(MushGame game) {
-		game.killPlayer(victim);
+	public void execute(Game game) {
+		// TODO
+		//	game.killPlayer(victim);
 	}
 
 	@Override
-	public MessagePack getHiddenMessagePack() {
-		return new MessagePack(ACTION_MUSH_KILL_HIDDEN, getPerformer()
+	public Message getHiddenMessagePack() {
+		return new Message(ACTION_MUSH_KILL_HIDDEN, getPerformer()
 				.getNick(), victim.getNick());
 	}
 
 	@Override
-	public MessagePack getVisibleMessagePack() {
-		return new MessagePack(ACTION_MUSH_KILL_VISIBLE, victim.getNick());
+	public Message getVisibleMessagePack() {
+		return new Message(ACTION_MUSH_KILL_VISIBLE, victim.getNick());
 	}
 }

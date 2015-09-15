@@ -1,21 +1,16 @@
 package mush.game;
 
-import java.util.List;
-
 import mush.MushValues;
-import mush.command.ActionCommandType;
-import util.message.MessagePack;
-import chat.User;
 
 public class Validator implements MushValues {
 
-	private MushGame mushGame;
+/*	private Game mushGame;
 
-	Validator(MushGame mushGame) {
+	Validator(Game mushGame) {
 		this.mushGame = mushGame;
 	}
 
-	public boolean canPerformAction(User user,
+	public boolean canPerformAction(ChatUser user,
 			ActionCommandType actionCommandType) {
 		switch (actionCommandType) {
 		case MUSH_VOTE:
@@ -36,23 +31,23 @@ public class Validator implements MushValues {
 		}
 	}
 
-	public MessagePack getActionErrors(User user,
+	public Message getActionErrors(ChatUser user,
 			ActionCommandType actionCommandType, List<String> args) {
 		switch (actionCommandType) {
 		case MUSH_VOTE:
 		case VOTE:
 			if (args.size() <= 1) {
-				return new MessagePack(MUSH_VOTE_NO_NICK);
+				return new Message(MUSH_VOTE_NO_NICK);
 			}
 			if (!mushGame.canVote(user)) {
-				return new MessagePack(MUSH_VOTE_INVALID);
+				return new Message(MUSH_VOTE_INVALID);
 			}
 			if (!mushGame.isVotable(args.get(1))) {
-				return new MessagePack(MUSH_VOTE_UNKNOWN, args.get(1));
+				return new Message(MUSH_VOTE_UNKNOWN, args.get(1));
 			}
 			return null;
 		default:
 			return null;
 		}
-	}
+	}*/
 }

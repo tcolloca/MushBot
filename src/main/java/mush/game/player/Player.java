@@ -5,16 +5,20 @@ import java.util.List;
 import mush.game.player.role.HumanRole;
 import mush.game.player.role.MushRole;
 import mush.game.player.role.Role;
-import chat.User;
+import chat.ChatUser;
 
 public class Player {
 
-	private User user;
+	private ChatUser user;
 	private Role role;
 
-	public Player(User user) {
+	public Player(ChatUser user) {
 		super();
 		this.user = user;
+	}
+
+	public Player() {
+		// TODO Auto-generated constructor stub
 	}
 
 	public void convertToMush() {
@@ -29,12 +33,12 @@ public class Player {
 		return role != null && role.isMush();
 	}
 
-	public User getUser() {
+	public ChatUser getUser() {
 		return user;
 	}
 
 	public String getNick() {
-		return user.getNick();
+		return user.getUsername();
 	}
 
 	public List<String> getRoleNames() {
